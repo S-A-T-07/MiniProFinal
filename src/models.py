@@ -1,38 +1,44 @@
 from . import db
 from flask_login import UserMixin
-from sqlalchemy.sql import func
 
 
-class UserBase(db.Model, UserMixin):
+class User(db.Model, UserMixin):
+    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(150), unique=True)
     password = db.Column(db.String(150))
-    studentbase = db.relationship('StudentBase')
-    teacherbase = db.relationship('TeacherBase')
+    students = db.relationship('Student', backref='user', lazy=True)
+    teachers = db.relationship('Teacher', backref='user', lazy=True)
 
-class StudentBase(db.Model):
+
+class Student(db.Model):
+    __tablename__ = 'students'
     id = db.Column(db.Integer, primary_key=True)
-    RegNo = db.Column(db.String(150))
+    reg_no = db.Column(db.String(150))
     name = db.Column(db.String(150))
     batch = db.Column(db.Integer)
-    result_id = db.relationship('Result.id')
-    userbase_id = db.Column(db.Integer, db.ForeignKey('UserBase.id'))
+    result_id = db.Column(db.Integer, db.ForeignKey('results.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-class TeacherBase(db.Model):
+
+class Teacher(db.Model):
+    __tablename__ = 'teachers'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150))
-    subject = db.relationship('Subject')
-    user_id = db.Column(db.Integer, db.ForeignKey('UserBase.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'))
 
 
 class Subject(db.Model):
+    __tablename__ = 'subjects'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150))
-    results_id = db.relationship('Results')
-    teacher_id = db.Column(db.Integer, db.ForeignKey('TeacherBase.id'))
+    results = db.relationship('Result', backref='subject', lazy=True)
 
-class Results(db.Model):
+
+class Result(db.Model):
+    __tablename__ = 'results'
     id = db.Column(db.Integer, primary_key=True)
     grade = db.Column(db.String(2))
-    studentbase_id = db.Column(db.Integer, db.ForeignKey('StudentBase.id'))
-    subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'))
+    student_id = db.Column(db.Integer, db.ForeignKey('students.id'))
+    subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'))

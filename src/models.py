@@ -10,6 +10,8 @@ class User(db.Model, UserMixin):
     students = db.relationship('Student', backref='user', lazy=True)
     teachers = db.relationship('Teacher', backref='user', lazy=True)
 
+    def is_admin(self):
+        return self.secret == 'your_secret_key'  # Replace with your admin email
 
 class Student(db.Model):
     __tablename__ = 'students'
